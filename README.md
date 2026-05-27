@@ -232,9 +232,9 @@ Dataset used:
 
 If you'd like to connect or discuss the project:
 
-* LinkedIn
-* GitHub
-* Email
+* [LinkedIn](https://linkedin.com/arushikhare)
+* [GitHub](https://www.github.com/arushi290805)
+* [Email](mailto:arushikharework@gmail.com)
 
 ---
 
