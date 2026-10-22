@@ -16,33 +16,51 @@ embeddings = np.load('models/embeddings.npy')
 index = faiss.read_index('models/movie_index.faiss')
 
 def fetch_poster(movie_id):
+    # Get API key
+    api_key = os.getenv("TMDB_API_KEY")
 
-    try:
+    if not api_key:
+        try:
+            api_key = st.secrets["TMDB_API_KEY"]
+        except Exception:
+            return None
 
-        api_key=os.getenv('TMDB_API_KEY')
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
+    # Validate movie ID
+    if pd.isna(movie_id):
+        st.warning("Movie ID is missing.")
+        return None
 
-        response = requests.get(
-            url,
-            timeout=10
-        )
+    url = f"https://api.themoviedb.org/3/movie/{int(movie_id)}"
 
-        data = response.json()
-
-        if data.get('poster_path'):
-
-            return (
-                "https://image.tmdb.org/t/p/w500"
-                + data['poster_path']
+    for attempts in range(2):
+        try:
+            response = requests.get(
+                url,
+                params={
+                    "api_key": api_key,
+                    "language": "en-US"
+                },
+                timeout=20
             )
+            # Show API errors
+            if response.status_code != 200:
+                st.warning(
+                    f"TMDB error for movie ID {movie_id}: "
+                    f"HTTP {response.status_code}"
+                )
+                return None
+            data = response.json()
+            poster_path = data.get("poster_path")
 
-        return None
+            if poster_path:
+                return f"https://image.tmdb.org/t/p/w500{poster_path}"
 
-    except Exception as e:
-
-        print("Poster fetch error:", e)
-
-        return None
+            st.caption(f"No poster path returned for movie ID {movie_id}.")
+            return None
+        except requests.RequestException:
+            if attempts==1:
+                return None
+    return None
 
 def recommend(movie_title, top_n=5):
     #we will find movie index
