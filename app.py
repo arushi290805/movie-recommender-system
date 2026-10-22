@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import faiss
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv('.env')
 
 movies=pickle.load(open('movies.pkl','rb'))
 movies_list=movies['title'].values
@@ -16,7 +19,8 @@ def fetch_poster(movie_id):
 
     try:
 
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US"
+        api_key=os.getenv('TMDB_API_KEY')
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
 
         response = requests.get(
             url,
